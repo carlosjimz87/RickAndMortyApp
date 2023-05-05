@@ -1,4 +1,10 @@
 package com.example.rickandmortyapp.ui.views.details
 
-class DetailsScreen {
+import androidx.compose.runtime.Composable
+
+@Composable
+fun CharactersListScreen(
+    navController: NavController
+) {
+
 }
