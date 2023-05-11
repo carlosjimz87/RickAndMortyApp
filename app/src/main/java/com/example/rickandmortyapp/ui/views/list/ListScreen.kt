@@ -26,9 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -37,11 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.rickandmortyapp.R
 import com.example.rickandmortyapp.repositories.models.CharacterItem
-import com.example.rickandmortyapp.ui.views.list.ListViewModel
-import com.google.accompanist.coil.CoilImage
+import com.example.rickandmortyapp.utils.Constants.ITEMS_PER_ROW
+import com.example.rickandmortyapp.utils.Constants.OFFSET
+
 
 @Composable
 fun ListScreen(
@@ -63,7 +65,7 @@ fun ListScreen(
                     .align(Alignment.CenterHorizontally)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            CharactersList(navController = navController)
+            CharactersList(navController = navController, viewModel = viewModel)
         }
     }
 }
@@ -78,18 +80,18 @@ fun CharactersList(
     val isLoading by remember { viewModel.isLoading }
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 128.dp)
+        columns = GridCells.Fixed(ITEMS_PER_ROW)
     ) {
-        val itemCount = if (characterList.size % 2 == 0) {
-            characterList.size / 2
+        val itemCount = if (characterList.size % ITEMS_PER_ROW == 0) {
+            characterList.size / ITEMS_PER_ROW
         } else {
-            characterList.size / 2 + 1
+            characterList.size / ITEMS_PER_ROW + OFFSET
         }
-        items(itemCount) {
-            if (it >= itemCount - 1 && !isLoading) {
-                viewModel.loadCharacters()
+        items(itemCount) { index ->
+            if ((index >= (itemCount - 1)) && !isLoading) {
+                viewModel.getAllCharacters()
             }
-            CharacterRow(rowIndex = it, entries = characterList, navController = navController)
+            CharacterRow(rowIndex = index, entries = characterList, navController = navController)
         }
     }
     Box(
@@ -101,7 +103,7 @@ fun CharactersList(
         }
         if (loadError.isNotEmpty()) {
             RetrySection(error = loadError) {
-                viewModel.loadCharacters()
+                viewModel.getAllCharacters()
             }
         }
     }
@@ -116,14 +118,14 @@ fun CharacterRow(
     Column {
         Row {
             CharacterItemBox(
-                item = entries[rowIndex * 2],
+                item = entries[rowIndex * ITEMS_PER_ROW],
                 navController = navController,
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(16.dp))
-            if (entries.size >= rowIndex * 2 + 2) {
+            if (entries.size >= rowIndex * ITEMS_PER_ROW + ITEMS_PER_ROW) {
                 CharacterItemBox(
-                    item = entries[rowIndex * 2 + 1],
+                    item = entries[rowIndex * ITEMS_PER_ROW + OFFSET],
                     navController = navController,
                     modifier = Modifier.weight(1f)
                 )
@@ -155,26 +157,17 @@ fun CharacterItemBox(
             }
     ) {
         Column {
-            CoilImage(
-                request = ImageRequest.Builder(LocalContext.current)
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
                     .data(item.image)
-//                    .target {
-//                        viewModel.calcDominantColor(it) { color ->
-//                            dominantColor = color
-//                        }
-//                    }
+                    .crossfade(true)
                     .build(),
+                placeholder = painterResource(R.drawable.ic_image),
                 contentDescription = item.name,
-                fadeIn = true,
-                modifier = Modifier
-                    .size(120.dp)
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.scale(0.5f)
-                )
-            }
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(120.dp).align(Alignment.CenterHorizontally)
+            )
+
             Text(
                 text = item.name,
                 fontFamily = FontFamily.Default,

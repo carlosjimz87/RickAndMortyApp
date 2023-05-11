@@ -1,40 +1,60 @@
 package com.example.rickandmortyapp
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.example.rickandmortyapp.data.remote.CharactersApi
-import com.example.rickandmortyapp.repositories.remote.CharacterRepository
-import com.example.rickandmortyapp.repositories.remote.CharacterRepositoryImpl
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.rickandmortyapp.ui.theme.RickAndMortyAppTheme
+import com.example.rickandmortyapp.ui.views.details.DetailsScreen
+import com.example.rickandmortyapp.ui.views.list.ListScreen
+import com.example.rickandmortyapp.ui.views.list.ListViewModel
+import com.example.rickandmortyapp.utils.Constants.DETAILS_SCREEN_NAME
+import com.example.rickandmortyapp.utils.Constants.LIST_SCREEN_NAME
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject
-    lateinit var repository: CharacterRepository
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContent {
+            RickAndMortyAppTheme {
+                val navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = LIST_SCREEN_NAME
+                ) {
+                    composable(LIST_SCREEN_NAME) {
 
-        runBlocking {
-            withContext(Dispatchers.IO) {
+                        val viewModel = hiltViewModel<ListViewModel>()
+                        ListScreen(navController,viewModel)
+                    }
 
-                val result = repository.getAllCharacters()
-                Log.d("CHARACTERS", "CHARACTERS....")
-                result.data?.results?.forEach { character ->
-                    Log.d("CHARACTER", character.name)
-                } ?: Log.e("CHARACTERS","ERROR")
+                    composable(
+                        "$DETAILS_SCREEN_NAME/{id}",
+                        arguments = listOf(
+                            navArgument("id") {
+                                type = NavType.IntType
+                            }
+                        )
+                    ) {
+                        val characterId = remember {
+                            it.arguments?.getInt("id")
+                        } ?: 0
+                        DetailsScreen(
+                            navController = navController
+                        )
+                    }
+                }
             }
         }
+
 
     }
 }
