@@ -7,6 +7,7 @@ import com.example.rickandmortyapp.ui.views.list.ListViewModel
 
 @Composable
 fun DetailsScreen(
+    characterId: Int,
     navController: NavController,
     viewModel: DetailsViewModel = viewModel()
 ) {

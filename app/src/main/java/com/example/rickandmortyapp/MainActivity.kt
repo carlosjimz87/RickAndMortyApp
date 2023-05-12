@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
                             it.arguments?.getInt("id")
                         } ?: 0
                         DetailsScreen(
+                            characterId,
                             navController = navController
                         )
                     }

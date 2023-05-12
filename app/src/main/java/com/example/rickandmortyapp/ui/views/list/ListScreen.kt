@@ -1,7 +1,9 @@
 package com.example.rickandmortyapp.ui.views.list
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +12,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -27,13 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,13 +42,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.rickandmortyapp.R
 import com.example.rickandmortyapp.repositories.models.CharacterItem
-import com.example.rickandmortyapp.utils.Constants.ITEMS_PER_ROW
 
 
 @Composable
 fun ListScreen(
     navController: NavController,
-    viewModel: ListViewModel = viewModel()
+    viewModel: ListViewModel = viewModel(),
 ) {
 
     Surface(
@@ -58,10 +57,11 @@ fun ListScreen(
         Column {
             Image(
                 painter = painterResource(id = R.drawable.rickandmorty),
+                alignment = Alignment.TopStart,
+                contentScale = ContentScale.Fit,
                 contentDescription = "RickAndMorty",
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
+                    .aspectRatio(1.5f)
                     .align(Alignment.CenterHorizontally)
             )
             CharactersList(navController = navController, viewModel = viewModel)
@@ -80,17 +80,16 @@ fun CharactersList(
     val isLoading by remember { viewModel.isLoading }
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(ITEMS_PER_ROW),
-        contentPadding = PaddingValues(16.dp)
+        columns = GridCells.Adaptive(minSize = 110.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
         items(characterList) { item ->
             CharacterItemBox(
                 item = item,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
                 navController = navController
             )
         }
@@ -119,9 +118,8 @@ fun CharacterItemBox(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .shadow(5.dp, RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
-            .aspectRatio(1f)
+            .background(MaterialTheme.colorScheme.primary)
             .clickable {
                 navController.navigate(
                     "detail_screen/${item.id}"
@@ -134,7 +132,7 @@ fun CharacterItemBox(
                     .data(item.image)
                     .crossfade(true)
                     .build(),
-                placeholder = painterResource(R.drawable.ic_image),
+                placeholder = painterResource(R.drawable.rickandmortyback),
                 contentDescription = item.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -144,8 +142,10 @@ fun CharacterItemBox(
 
             Text(
                 text = item.name,
-                fontFamily = FontFamily.Default,
-                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 15.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
