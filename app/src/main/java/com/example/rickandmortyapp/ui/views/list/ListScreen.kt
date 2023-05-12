@@ -4,16 +4,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,7 +43,6 @@ import coil.request.ImageRequest
 import com.example.rickandmortyapp.R
 import com.example.rickandmortyapp.repositories.models.CharacterItem
 import com.example.rickandmortyapp.utils.Constants.ITEMS_PER_ROW
-import com.example.rickandmortyapp.utils.Constants.OFFSET
 
 
 @Composable
@@ -56,15 +56,14 @@ fun ListScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Column {
-            Spacer(modifier = Modifier.height(20.dp))
             Image(
                 painter = painterResource(id = R.drawable.rickandmorty),
                 contentDescription = "RickAndMorty",
                 modifier = Modifier
                     .fillMaxWidth()
+                    .aspectRatio(1f)
                     .align(Alignment.CenterHorizontally)
             )
-            Spacer(modifier = Modifier.height(16.dp))
             CharactersList(navController = navController, viewModel = viewModel)
         }
     }
@@ -75,23 +74,25 @@ fun CharactersList(
     navController: NavController,
     viewModel: ListViewModel = viewModel()
 ) {
+
     val characterList by remember { viewModel.characterList }
     val loadError by remember { viewModel.loadError }
     val isLoading by remember { viewModel.isLoading }
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(ITEMS_PER_ROW)
+        columns = GridCells.Fixed(ITEMS_PER_ROW),
+        contentPadding = PaddingValues(16.dp)
     ) {
-        val itemCount = if (characterList.size % ITEMS_PER_ROW == 0) {
-            characterList.size / ITEMS_PER_ROW
-        } else {
-            characterList.size / ITEMS_PER_ROW + OFFSET
-        }
-        items(itemCount) { index ->
-            if ((index >= (itemCount - 1)) && !isLoading) {
-                viewModel.getAllCharacters()
-            }
-            CharacterRow(rowIndex = index, entries = characterList, navController = navController)
+
+        items(characterList) { item ->
+            CharacterItemBox(
+                item = item,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .aspectRatio(1f),
+                navController = navController
+            )
         }
     }
     Box(
@@ -110,39 +111,10 @@ fun CharactersList(
 }
 
 @Composable
-fun CharacterRow(
-    rowIndex: Int,
-    entries: List<CharacterItem>,
-    navController: NavController
-) {
-    Column {
-        Row {
-            CharacterItemBox(
-                item = entries[rowIndex * ITEMS_PER_ROW],
-                navController = navController,
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            if (entries.size >= rowIndex * ITEMS_PER_ROW + ITEMS_PER_ROW) {
-                CharacterItemBox(
-                    item = entries[rowIndex * ITEMS_PER_ROW + OFFSET],
-                    navController = navController,
-                    modifier = Modifier.weight(1f)
-                )
-            } else {
-                Spacer(modifier = Modifier.weight(1f))
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-    }
-}
-
-@Composable
 fun CharacterItemBox(
     item: CharacterItem,
     navController: NavController,
-    modifier: Modifier = Modifier,
-    viewModel: ListViewModel = viewModel()
+    modifier: Modifier = Modifier
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -165,7 +137,9 @@ fun CharacterItemBox(
                 placeholder = painterResource(R.drawable.ic_image),
                 contentDescription = item.name,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(120.dp).align(Alignment.CenterHorizontally)
+                modifier = Modifier
+                    .size(120.dp)
+                    .align(Alignment.CenterHorizontally)
             )
 
             Text(

@@ -3,11 +3,11 @@ package com.example.rickandmortyapp.di
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.example.rickandmortyapp.utils.Constants.BASE_URL
 import com.example.rickandmortyapp.R
 import com.example.rickandmortyapp.data.remote.CharactersApi
 import com.example.rickandmortyapp.repositories.remote.CharacterRepository
 import com.example.rickandmortyapp.repositories.remote.CharacterRepositoryImpl
+import com.example.rickandmortyapp.utils.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -7,5 +7,4 @@ object Constants {
     const val DETAILS_SCREEN_NAME = "details_screen"
 
     const val ITEMS_PER_ROW = 2
-    const val OFFSET = 1
 }
