@@ -24,10 +24,6 @@ class ListViewModel @Inject constructor(
         getAllCharacters()
     }
 
-//    fun loadImage(view: ImageView, url: String) {
-//        glide.load(url).into(view)
-//    }
-
     fun getAllCharacters() {
 
         viewModelScope.launch {

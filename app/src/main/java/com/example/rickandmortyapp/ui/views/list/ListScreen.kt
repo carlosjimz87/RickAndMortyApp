@@ -36,18 +36,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.rickandmortyapp.R
 import com.example.rickandmortyapp.repositories.models.CharacterItem
+import com.example.rickandmortyapp.utils.Constants
 
 
 @Composable
 fun ListScreen(
     navController: NavController,
-    viewModel: ListViewModel = viewModel(),
+    viewModel: ListViewModel = hiltViewModel(),
 ) {
 
     Surface(
@@ -122,7 +124,7 @@ fun CharacterItemBox(
             .background(MaterialTheme.colorScheme.primary)
             .clickable {
                 navController.navigate(
-                    "detail_screen/${item.id}"
+                    "${Constants.DETAILS_SCREEN_NAME}/${item.id}"
                 )
             }
     ) {
